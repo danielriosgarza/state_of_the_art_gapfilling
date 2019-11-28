@@ -170,7 +170,7 @@ dropout = 0.01                     #dropout
 
 
 #<Curate> and shuffle dataset
-metadata = pd.read_csv("databases/new_metadata.csv", index_col=0 ) #Full dataset
+metadata = pd.read_csv(".../databases/new_metadata.csv", index_col=0 ) #Full dataset
 metadata = metadata[metadata.columns[metadata.sum()>100]]      #Drop models < 100 reactions
 genus_ids = list(metadata.columns)  #list of genus ids     
 np.random.shuffle(genus_ids)        #shuffle the ids
