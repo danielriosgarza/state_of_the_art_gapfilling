@@ -80,8 +80,8 @@ def create_neural_network(data, labels, val_data, val_labels, nlayers=3, nnodes=
 
     
     history = model.fit(ndata, train_labels, epochs = nepochs, shuffle=True, batch_size = b_size, validation_data=(val_data, val_labels))                
-    if(save):
-        model.save(path+"output/NN/networks/network%i.h5"%segment)
+#    if(save):
+#        model.save(path+"output/NN/networks/network%i.h5"%segment)
     return (model, history)
  
 
@@ -149,8 +149,6 @@ def plot_network_loss(h, seg):
 
 #PARAMETERS
 
-path = "/home/meine/Git/"  #main path    
-
 #Training parameters    
 nuplo = 5                    #number of copies of train data
 nsegments = 10
@@ -172,7 +170,7 @@ dropout = 0.01                     #dropout
 
 
 #<Curate> and shuffle dataset
-metadata = pd.read_csv(path+"databases/new_metadata.csv", index_col=0 ) #Full dataset
+metadata = pd.read_csv("databases/new_metadata.csv", index_col=0 ) #Full dataset
 metadata = metadata[metadata.columns[metadata.sum()>100]]      #Drop models < 100 reactions
 genus_ids = list(metadata.columns)  #list of genus ids     
 np.random.shuffle(genus_ids)        #shuffle the ids
