@@ -169,7 +169,7 @@ dropout = 0.01                     #dropout
 
 path = os.getcwd()
 split_path = path.split('/')
-data_path = '/'+os.path.join(*split_path[:-1])+'/databases/'
+data_path = '/'+os.path.join(*split_path[:-1])+'/files/'
 
 
 #<Curate> and shuffle dataset
