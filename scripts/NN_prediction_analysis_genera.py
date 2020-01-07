@@ -16,19 +16,21 @@ from datetime import date
 import matplotlib.pyplot as plt
 
 
-today = date.today()
+
 path = os.getcwd()
 split_path = path.split('/')
-data_path = '/'+os.path.join(*split_path[:-1])+'/databases/'
+data_path = '/'+os.path.join(*split_path[:-1])+'/files/'
 
 
 df_truth = pd.read_csv(data_path+"new_metadata.csv", index_col=0)
 p = np.load(data_path+"prediction_2019-12-10_30_0.npy").T
-m = 1-np.load(data_path+"incomplete_30_0.npy").T
+m = 1-np.asarray(pd.read_csv(data_path+"incomplete_30_0.csv")).T
 t = np.asarray(df_truth).T
 
 genus_ids = list(df_truth.columns)
 reaction_ids = list(df_truth.index)
+
+nrows, ncolumns = t.shape
 
 bp = np.round(p, 0)
 bp_i = 1-bp
@@ -75,7 +77,7 @@ score_df.plot.scatter(x='nreactions', y='f1score')
 #score_df['f1score'].hist(bins=50)
 
 
-contree = ete3.Tree(path+'data/concatenated_msa_trimmed.contree')
+contree = ete3.Tree(data_path+'concatenated_msa_trimmed.contree')
 ts = ete3.TreeStyle()
 ts.mode = 'c'
 
@@ -90,7 +92,7 @@ for n in contree.traverse():
    nstyle["bgcolor"] = colors.to_hex(rgba)
    n.set_style(nstyle)
 
-contree.render(path+'output/Trees/Tree_'+today+'.pdf', tree_style=ts, w=300, units='mm')   
+contree.show(tree_style=ts)   
 
 data = score_df['f1score'].dropna()
 
@@ -107,7 +109,8 @@ for c, p in zip(col, patches):
     plt.setp(p, 'facecolor', cmap(c))
 plt.xlabel("f1score")
 plt.ylabel("count")
-plt.savefig(path+'output/Trees/Hist_'+str(date.today())+'.svg')
+#plt.savefig(path+'output/Trees/Hist_'+str(date.today())+'.svg')
+plt.show()
 
 
 bl_dic = {}
