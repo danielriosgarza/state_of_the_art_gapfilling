@@ -10,6 +10,7 @@ from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
 import numpy as np
 import pandas as pd
+import os
 import matplotlib.pyplot as plt
 
 #FUNCTIONS
@@ -79,9 +80,9 @@ def create_neural_network(data, labels, val_data, val_labels, nlayers=3, nnodes=
     
 
     
-    history = model.fit(ndata, train_labels, epochs = nepochs, shuffle=True, batch_size = b_size, validation_data=(val_data, val_labels))                
-    if(save):
-        model.save(path+"output/NN/networks/network%i.h5"%segment)
+    history = model.fit(ndata, train_labels, epochs = nepochs, shuffle=True, batch_size = b_size, validation_data=(val_data, val_labels), verbose=2)                
+#    if(save):
+#        model.save(path+"output/NN/networks/network%i.h5"%segment)
     return (model, history)
  
 
@@ -149,8 +150,6 @@ def plot_network_loss(h, seg):
 
 #PARAMETERS
 
-path = "/home/meine/Git/"  #main path    
-
 #Training parameters    
 nuplo = 5                    #number of copies of train data
 nsegments = 10
@@ -168,11 +167,13 @@ b_size  = 100                    #batch_size
 dropout = 0.01                     #dropout
 
 
-
+path = os.getcwd()
+split_path = path.split('/')
+data_path = '/'+os.path.join(*split_path[:-1])+'/files/'
 
 
 #<Curate> and shuffle dataset
-metadata = pd.read_csv(path+"databases/new_metadata.csv", index_col=0 ) #Full dataset
+metadata = pd.read_csv(data_path+'new_metadata.csv', index_col=0 ) #Full dataset
 metadata = metadata[metadata.columns[metadata.sum()>100]]      #Drop models < 100 reactions
 genus_ids = list(metadata.columns)  #list of genus ids     
 np.random.shuffle(genus_ids)        #shuffle the ids
@@ -220,8 +221,8 @@ for seg in range(nsegments):
     train_labels = np.repeat(np.copy(train_data), nuplo, axis = 0)
     test_labels = np.copy(test_data)                         
     network, history = create_neural_network(ndata, train_labels, ntest, test_labels, nlayers, nnodes, nepochs, b_size, dropout,False, seg)                 
-    plot_network_accuracy(history, seg)
-    plot_network_loss(history, seg)
+#    plot_network_accuracy(history, seg)
+#    plot_network_loss(history, seg)
     
       
     m = 1-ntest

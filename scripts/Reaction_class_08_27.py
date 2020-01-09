@@ -327,14 +327,3 @@ def read_biochemistry_table(location):
         biochem[splitted_line[0]] = [splitted_line[4], splitted_line[9], splitted_line[6]]
         
     return biochem
-
-
-#For testing:
-r=Reaction(model='/home/jan/Lactobacillus2/sbml_models/gapfilled/1579.28.sbml')
-
-#biochem_input = read_biochemistry_table("/home/jan/Downloads/modelseed_reactions.tsv")
-#b=Reaction(biochem_input=biochem_input)
-#
-p = Reaction(model_folder='/home/jan/Lactobacillus2/sbml_models/')
-#b.reactions = b.add_reactions_to_dict(b.reactions, p.reactions)
-#b.write_database('/home/jan/reaction_dbs/2019-06-11_db_tableANDLactobacillus2.txt')
