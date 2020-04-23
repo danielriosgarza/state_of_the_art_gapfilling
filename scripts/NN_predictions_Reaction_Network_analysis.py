@@ -7,6 +7,7 @@ Created on Thu Oct 17 14:46:44 2019
 """
 import numpy as np
 import pandas as pd
+import os
 import networkx as nx
 from Reaction_class_08_27 import Reaction, read_biochemistry_table
 import itertools as it
@@ -40,16 +41,19 @@ def common_member(a, b):
 
 
 
-path = "/home/meine/Git/"  #main path
+path = os.getcwd()
+split_path = path.split('/')
+data_path = '/'+os.path.join(*split_path[:-1])+'/files/'
+#output_path = "" OUTPUT PATH DISABLED
 
-df_truth = pd.read_csv("dataset_genera.csv", index_col=0) #load truth
+df_truth = np.load(data_path+"dataset_genera.npy") #load truth
 
-df_predictions = pd.read_csv("prediction_1l_2020-02-17_30_0.csv", index_col=0) #load prediction
+df_predictions =np.load(data_path+"prediction_1l_2020-02-17_30_0.npy") #load prediction
 
-genus_ids = list(df_truth.columns)  #get list of genera
-reaction_ids = list(df_truth.index) #get list of reactions
-t = np.asarray(df_truth).T          #transfer truth df to numpy array
-p = np.asarray(df_predictions[genus_ids]).T #idem for predictions, with same order of genera
+genus_ids = np.load(data_path+"id_vector.npy")  #get list of genera
+reaction_ids = np.load(data_path+"rxn_vector.npy") #get list of reactions
+t = df_truth.T          #transfer truth df to numpy array
+p = df_predictions.T #idem for predictions, with same order of genera
 nrows, ncolumns = t.shape  #get number of genera and reactions
 
 bp = np.round(p, 0)       #create binarized predictions
@@ -62,8 +66,7 @@ dic_FN = {}
 dic_FP = {}
 
 
-df_input = pd.read_csv('incomplete_30_0_2.csv', index_col=0) #get df used as input
-df_input.index = df_truth.index                              #set to same order reaction as truth (check)
+df_input = pd.read_csv(data_path+'incomplete_30_0.csv', index_col=0) #get df used as input
 m = 1-np.asarray(df_input).T                                 #get mask (all 0s in input)
 
 
@@ -142,7 +145,7 @@ for reaction in reaction_ids:
         else:
             G.add_edge(reaction, metabolite)
 
-nx.write_gml(G,path+'output/RxN/network_with_metabolites.gml')
+#nx.write_gml(G,Output_path + "network_with_metabolites.gml') #Ouput disabled
 
 #connect reactions directly
 reaction_network = []
@@ -165,7 +168,7 @@ for i in reaction_network:
     G2.add_edge(a, b)
 
 
-nx.write_gml(G2,path+'output/RxN/network_without_metabolites.gml')
+#nx.write_gml(G2,output_path+'network_without_metabolites.gml') #Output disabled
 
 
 #Define charcteristics
