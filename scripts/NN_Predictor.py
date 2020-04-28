@@ -7,8 +7,11 @@ Created on Mon Oct 21 13:19:13 2019
 """
 import numpy as np
 import pandas as pd
+import os
 import tensorflow as tf
 from datetime import date
+
+today = date.today()
 
 
 
@@ -21,31 +24,29 @@ def split_list(l, n):
     return list(o)
 
 
-path = "/home/meine/Git/"
-today = str(date.today())
+path = os.getcwd()
+split_path = path.split('/')
+data_path = '/'+os.path.join(*split_path[:-1])+'/files/'
 
-truth = pd.read_csv(path+"data/dataset_genera.csv", index_col=0)
 
-reaction_ids = list(truth.index)
-genus_ids =  list(truth.columns)
-df_input = pd.read_csv(path+'data/Incomplete_dfs/incomplete_10_0.csv', index_col=0)
+reaction_ids = np.load(data_path+'rxn_vector.npy')
+genus_ids =  np.load(data_path+'id_vecotor.npy')
+df_input = pd.read_csv(data_path+'incomplete_30_0.csv', index_col=0)
 
 df_input = df_input[genus_ids]
-
-ncolumns, nrows = truth.shape
 
 genus_lists = split_list(genus_ids, 5)
 
 
-df_prediction = pd.DataFrame(index=reaction_ids, columns=genus_ids)
+prediction = np.zeros(df_input.shape)
 
 for seg in range(5):
+#   load network
     network = tf.keras.models.load_model(path+'output/NN/model%i_1_layers_b30.h5'%(seg), custom_objects={"custom_loss": 'binary_crossentropy'})
     input_ids = genus_lists[seg]
-    seg_truth = np.asarray(truth[input_ids]).T
     input_data = np.asarray(df_input[input_ids]).T
     t_result = network.predict(input_data)        
-    df_prediction[genus_lists[seg]] = t_result.T
-df_prediction.to_csv(path+"output/NN/predictions/prediction_1l_"+today+"_10_0.csv")
+    prediction[genus_lists[seg]] = t_result.T
+prediction.save(data_path+"prediction_"+today+"_1l_30_0.csv")
 
 
