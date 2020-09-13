@@ -12,41 +12,34 @@ import tensorflow as tf
 from datetime import date
 
 today = date.today()
+single_input = False
 
-
-
-#splits list l in n equal parts
-def split_list(l, n):
-    a = np.asarray(l)
-    sa = np.array_split(a, n)
-    o = [list(i) for i in sa]
-        
-    return list(o)
-
-
+#Load input
 path = os.getcwd()
 split_path = path.split('/')
 data_path = '/'+os.path.join(*split_path[:-1])+'/files/'
+input_path = data_path+'example_binary.npy'
+df_input = np.load(input_path)
 
+#load reaction ids
+reaction_ids = np.load(data_path+'rxn_vector.npy').astype('str')
 
-reaction_ids = np.load(data_path+'rxn_vector.npy')
-genus_ids =  np.load(data_path+'id_vecotor.npy')
-df_input = pd.read_csv(data_path+'incomplete_30_0.csv', index_col=0)
+#test for single input (trips up NN)
+if np.ndim(df_input) == 1:
+    input_data = np.tile(df_input,[2,1])
+else:
+    input_data = df_input
+prediction = np.zeros(input_data.shape)
 
-df_input = df_input[genus_ids]
+#   load network and make prediction
+network = tf.keras.models.load_model(data_path+'NN_full.h5', custom_objects={"custom_loss": 'binary_crossentropy'})
+t_result = network.predict(input_data)
+prediction = np.asarray(t_result)
 
-genus_lists = split_list(genus_ids, 5)
-
-
-prediction = np.zeros(df_input.shape)
-
-for seg in range(5):
-#   load network
-    network = tf.keras.models.load_model(path+'output/NN/model%i_1_layers_b30.h5'%(seg), custom_objects={"custom_loss": 'binary_crossentropy'})
-    input_ids = genus_lists[seg]
-    input_data = np.asarray(df_input[input_ids]).T
-    t_result = network.predict(input_data)        
-    prediction[genus_lists[seg]] = t_result.T
-prediction.save(data_path+"prediction_"+today+"_1l_30_0.csv")
-
-
+#ugly i know. but do not have a solution at this point
+if np.ndim(df_input) == 1:
+    prediction  = prediction[0].T
+else:
+    prediction = prediction.T
+    
+np.save(data_path+"prediction_example.npy", prediction)
