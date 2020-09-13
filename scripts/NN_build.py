@@ -11,6 +11,8 @@ from tensorflow.keras import backend as K
 import numpy as np
 import pandas as pd
 import os
+from tensorflow import compat
+
 #FUNCTIONS
 
 """
@@ -75,6 +77,7 @@ def create_neural_network(data, labels, nlayers=1, nnodes=512, nepochs=7, b_size
     model.compile(optimizers.Adam(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.01, amsgrad=True),
                   loss=custom_weighted_loss(model.input, bias_0),
                   metrics=['binary_accuracy'])
+    history = model.fit(ndata, train_labels, epochs = nepochs, shuffle=True, batch_size = b_size, verbose=2)
 
     if(save):
         model.save(output_path+"%s.h5"%name)
@@ -98,11 +101,11 @@ b_size  = 50               #batch_size
 dropout = 0.1              #dropout
 bias_0 = 0.3            #bias towards negative class
 
-
+compat.v1.disable_eager_execution()
 path = os.getcwd()
 split_path = path.split('/')
 data_path = '/'+os.path.join(*split_path[:-1])+'/files/'
-output_path = ''
+output_path = data_path
 
 
 #Load and shuffle dataset
@@ -114,23 +117,20 @@ metadata = metadata[genus_ids]                                      #shuffle dat
 
 
 #Load data into numpy array
-reaction_ids = list(data.index)
-matrix = np.asarray(data).T
+reaction_ids = list(metadata.index)
+matrix = np.asarray(metadata).T
 ngenus, nreactions = matrix.shape
 
 #Train
 train_data =  matrix
 train_ids = genus_ids
-test_ids = genus_lists[seg]
 
 ndata = np.zeros((len(train_data)*nuplo, nreactions))
 for i in range(len(train_data)):
     for j in range(nuplo):
         con_train = np.random.uniform(0, max_con_train)
         for_train = np.random.uniform(0, max_for_train)
-
         ndata[nuplo*i+j] = noise_data(train_data[i],con_train, for_train)
-
+print(np.shape(ndata))
 train_labels = np.repeat(np.copy(train_data), nuplo, axis = 0)
 network = create_neural_network(ndata, train_labels, nlayers, nnodes, nepochs, b_size, dropout, bias_0, True, 'NN_full')
-type(network)
