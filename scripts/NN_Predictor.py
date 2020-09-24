@@ -16,13 +16,12 @@ single_input = False
 
 #Load input
 path = os.getcwd()
-split_path = path.split('/')
-data_path = '/'+os.path.join(*split_path[:-1])+'/files/'
-input_path = data_path+'example_binary.npy'
+data_path = os.path.join(os.path.split(path)[0],'files')
+input_path = os.path.join(data_path, 'example_binary.npy')
 df_input = np.load(input_path)
 
 #load reaction ids
-reaction_ids = np.load(data_path+'rxn_vector.npy').astype('str')
+reaction_ids = np.load(os.path.join(data_path,'rxn_vector.npy')).astype('str')
 
 #test for single input (trips up NN)
 if np.ndim(df_input) == 1:
@@ -32,7 +31,7 @@ else:
 prediction = np.zeros(input_data.shape)
 
 #   load network and make prediction
-network = tf.keras.models.load_model(data_path+'NN_full.h5', custom_objects={"custom_loss": 'binary_crossentropy'})
+network = tf.keras.models.load_model(os.path.join(data_path,'NN_full.h5'), custom_objects={"custom_loss": 'binary_crossentropy'})
 t_result = network.predict(input_data)
 prediction = np.asarray(t_result)
 
@@ -42,4 +41,4 @@ if np.ndim(df_input) == 1:
 else:
     prediction = prediction.T
     
-np.save(data_path+"prediction_example.npy", prediction)
+np.save(os.path.join(data_path,"prediction_example.npy"), prediction)

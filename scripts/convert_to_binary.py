@@ -1,16 +1,16 @@
+import os
 import numpy as np
 
 #Set path names
 path = os.getcwd()
-split_path = path.split('/')
-data_path = '/'+os.path.join(*split_path[:-1])+'/files'
-input_path = data_path+/'example_reaction_list.txt'
+data_path = os.path.join(os.path.split(path)[0],'files')
+input_path = data_path+'\\example_reaction_list.txt'
 
 f = open(input_path, "r")
 f0 = f.read()
 f1 = f0.split('\n')
 
-rv = np.load(data_path+"rxn_vector.npy").astype('str')
+rv = np.load( os.path.join(data_path,"rxn_vector.npy")).astype('str')
 f2 = np.zeros(len(rv))
 c = 0
 for i in rv:
@@ -24,4 +24,4 @@ for i in f1:
 
 print(len(test))
 
-np.save(data_path+'example_binary.npy', f2)
+np.save(os.path.join(data_path,'example_binary.npy'), f2)
